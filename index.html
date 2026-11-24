@@ -1252,8 +1252,8 @@ function contaCard(){
   if(!remote)return '<section class="card"><h2 class="ttl">Sincronização</h2><div class="sub">Este app está em modo local: os dados ficam só neste aparelho. Para sincronizar entre aparelhos e pessoas, preencha o arquivo config.js (veja o LEIA-ME).</div></section>';
   var email=(SESSION&&SESSION.user&&SESSION.user.email)||'';
   return '<section class="card"><div class="hd"><div><h2 class="ttl">Conta e grupo</h2><div class="sub" id="syncTxt2">'+esc(SYNCTXT[SYNCST])+'</div></div><button class="btn ghost sm" data-act="logout">Sair</button></div>'+
-    '<div class="frow"><div class="field">Sua conta<div style="font-size:14px;color:var(--ink);font-weight:500;overflow-wrap:anywhere">'+esc(email)+'</div></div>'+
-    '<div class="field">Código do grupo<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b style="font:800 17px var(--f-head);letter-spacing:.06em;color:var(--ink)">'+esc(fmtCode(CASAL&&CASAL.codigo))+'</b><button class="btn ghost sm" data-act="copycode" data-code="'+esc(fmtCode(CASAL&&CASAL.codigo))+'">Copiar</button></div></div></div>'+
+    '<div style="display:flex;flex-direction:column;gap:14px;margin-top:4px"><div class="field">Sua conta<div style="font-size:14px;color:var(--ink);font-weight:500;overflow-wrap:anywhere;word-break:normal">'+esc(email)+'</div></div>'+
+    '<div class="field">Código do grupo<div style="display:flex;gap:10px;align-items:center;justify-content:space-between"><b style="font:800 17px var(--f-head);letter-spacing:.06em;color:var(--ink)">'+esc(fmtCode(CASAL&&CASAL.codigo))+'</b><button class="btn ghost sm" data-act="copycode" data-code="'+esc(fmtCode(CASAL&&CASAL.codigo))+'">Copiar</button></div></div></div>'+
     '<div class="hint" style="margin-top:10px">Quem tiver o código pode entrar no grupo (limite de quatro pessoas). Compartilhe só com quem você quer que veja seus dados.</div>'+
     '<div style="margin-top:12px"><button class="btn ghost sm" data-act="leavegrp">Sair do grupo</button></div></section>'
 }

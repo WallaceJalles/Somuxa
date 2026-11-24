@@ -2,7 +2,7 @@
    Páginas e arquivos do próprio site: rede primeiro, cache como reserva (assim
    uma atualização publicada chega sozinha). Fontes e biblioteca de login: cache
    com atualização em segundo plano. Chamadas ao Supabase nunca passam por aqui. */
-var V = 'somuxa-v9';
+var V = 'somuxa-v10';
 var SHELL = ['./', 'index.html', 'config.js', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png'];
 var CDN = ['cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
