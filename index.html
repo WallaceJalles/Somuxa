@@ -167,6 +167,7 @@ svg.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;str
 .days button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .days button[aria-pressed="true"] small{color:inherit;opacity:.85}
 .bills{display:flex;flex-direction:column}
+@media (max-width:860px){.bills{max-height:46vh;overflow-y:auto;overscroll-behavior:contain}}
 .bill{display:grid;grid-template-columns:minmax(0,1fr);justify-items:start;gap:6px 10px;padding:11px 0;border-top:1px solid var(--line);align-items:center}
 .bill:first-child{border-top:0}
 .bill .nm{font-weight:600;overflow-wrap:break-word}
@@ -500,7 +501,7 @@ var LOGO='<svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id
 var COL={};try{localStorage.removeItem(LS_KEY+':col')}catch(e){}
 /* seções abertas/fechadas valem só enquanto você está na aba; ao sair da aba ou do app voltam ao padrão */
 function resetCol(){COL={}}
-var DEFOPEN={'g:bills':1};
+var DEFOPEN={};
 function isMob(){try{return window.matchMedia('(max-width:860px)').matches}catch(e){return false}}
 function isCol(k){return COL[k]===undefined?(isMob()&&!DEFOPEN[k]):!!COL[k]}
 function secAttrs(k,cls){return ' class="'+cls+(isCol(k)?' closed':'')+'" data-col="'+esc(k)+'"'}
@@ -1310,11 +1311,14 @@ function openAdd(g){
   var gs=groups();var def=g||(UI.view==='cartoes'&&UI.sel?UI.sel:gs[0].id);
   var opts=gs.map(function(x){return '<option value="'+esc(x.id)+'"'+(x.id===def?' selected':'')+'>'+esc(x.id==='fixos'?'Fixos (casa, internet…)':x.id==='outros'?'Outros gastos':x.name)+'</option>'}).join('');
   var plan='<option value="once">Só este mês</option><option value="rec">Todo mês</option>';for(var k=1;k<=12;k++)plan+='<option value="p'+k+'">'+k+(k>1?' parcelas':' parcela')+'</option>';
+  var mks=[];for(var i=0;i<=6;i++)mks.push(monthAdd(NOWKEY,i));if(mks.indexOf(UI.cur)<0){mks.push(UI.cur);mks.sort()}
+  var mo=mks.map(function(mk){return '<option value="'+mk+'"'+(mk===UI.cur?' selected':'')+'>'+monthName(mk)+'</option>'}).join('');
   var md=document.getElementById('modal');
   md.innerHTML='<form class="modal" id="addForm" role="dialog" aria-modal="true" aria-label="Novo lançamento"><h3>Novo lançamento</h3>'+
     '<label class="field">Onde entra<select id="fG">'+opts+'</select></label>'+
     '<label class="field">Descrição<input id="fN" placeholder="Ex.: Mercado, Compra no débito…" required></label>'+
     '<div class="frow">'+PS().map(function(k){return '<label class="field">'+esc(pname(k))+' paga (R$)<input id="f'+k.toUpperCase()+'" data-pv="'+k+'" inputmode="decimal" placeholder="0,00"></label>'}).join('')+'</div>'+
+    '<label class="field">Mês em que entra<select id="fM">'+mo+'</select></label>'+
     '<div class="frow"><label class="field">Parcelas<select id="fP">'+plan+'</select></label><label class="field">Dia de vencimento<input id="fD" type="number" min="1" max="31" placeholder="opcional"></label></div>'+
     '<div class="acts"><button type="button" class="btn ghost" data-act="close">Cancelar</button><button type="submit" class="btn">Salvar</button></div></form>';
   md.hidden=false;fitModal();
@@ -1432,7 +1436,9 @@ document.addEventListener('submit',function(e){
   PK.forEach(function(k){var f=document.getElementById('f'+k.toUpperCase());it[k]=f?parseNum(f.value):0;it[pf(k)]=false});
   var dia=parseInt(document.getElementById('fD').value,10);if(dia>=1&&dia<=31)it.dia=dia;
   applyPlan(it,document.getElementById('fP').value);
-  getMonth(UI.cur).items.push(it);closeModal();change()
+  var mk=document.getElementById('fM').value||UI.cur;
+  if(mk!==UI.cur)UI.cur=mk;
+  getMonth(mk).items.push(it);closeModal();change()
 });
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!document.getElementById('modal').hidden)closeModal()});
 document.addEventListener('change',function(e){
