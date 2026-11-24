@@ -1254,7 +1254,8 @@ function contaCard(){
   return '<section class="card"><div class="hd"><div><h2 class="ttl">Conta e grupo</h2><div class="sub" id="syncTxt2">'+esc(SYNCTXT[SYNCST])+'</div></div><button class="btn ghost sm" data-act="logout">Sair</button></div>'+
     '<div class="frow"><div class="field">Sua conta<div style="font-size:14px;color:var(--ink);font-weight:500;overflow-wrap:anywhere">'+esc(email)+'</div></div>'+
     '<div class="field">Código do grupo<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b style="font:800 17px var(--f-head);letter-spacing:.06em;color:var(--ink)">'+esc(fmtCode(CASAL&&CASAL.codigo))+'</b><button class="btn ghost sm" data-act="copycode" data-code="'+esc(fmtCode(CASAL&&CASAL.codigo))+'">Copiar</button></div></div></div>'+
-    '<div class="hint" style="margin-top:10px">Quem tiver o código pode entrar no grupo (limite de quatro pessoas). Compartilhe só com quem você quer que veja seus dados.</div></section>'
+    '<div class="hint" style="margin-top:10px">Quem tiver o código pode entrar no grupo (limite de quatro pessoas). Compartilhe só com quem você quer que veja seus dados.</div>'+
+    '<div style="margin-top:12px"><button class="btn ghost sm" data-act="leavegrp">Sair do grupo</button></div></section>'
 }
 function modeSeg(){
   var n=NP();
@@ -1338,6 +1339,16 @@ var MODAL_ON=false,SKIP_POP=false,POP_CLOSE=false;
   })
 })();
 document.addEventListener('visibilitychange',function(){if(document.hidden&&Object.keys(COL).length){resetCol();try{render()}catch(x){}}});
+function openLeave(err){
+  var md=document.getElementById('modal');
+  md.innerHTML='<form class="modal" id="leaveForm" role="dialog" aria-modal="true" aria-label="Sair do grupo"><h3>Sair do grupo?</h3>'+
+    '<div class="sub" style="margin-bottom:8px">Você perde o acesso aos dados deste grupo. As outras pessoas continuam com tudo, inclusive o que você lançou.</div>'+
+    '<div class="sub" style="margin-bottom:8px">Depois de sair, você pode criar um grupo só seu (Solo) ou entrar em outro com um código. Seu e-mail e sua senha continuam os mesmos.</div>'+
+    '<div class="sub" style="margin-bottom:12px"><b>Se você for a única pessoa do grupo, os dados dele serão apagados.</b></div>'+
+    (err?'<div class="amsg err" style="margin-bottom:10px">'+esc(err)+'</div>':'')+
+    '<div class="acts"><button type="button" class="btn ghost" data-act="close">Cancelar</button><button type="submit" class="btn" style="background:#D6334A">Sim, sair do grupo</button></div></form>';
+  md.hidden=false;fitModal()
+}
 function closeModal(){var md=document.getElementById('modal');md.hidden=true;md.innerHTML='';fitModal()}
 function applyPlan(it,val){it.rec=false;it.rest=0;if(val==='rec')it.rec=true;else if(val.charAt(0)==='p')it.rest=parseInt(val.slice(1),10)||0}
 function findItem(id){var m=getMonth(UI.cur);for(var i=0;i<m.items.length;i++)if(m.items[i].id===id)return m.items[i];return null}
@@ -1382,6 +1393,7 @@ document.addEventListener('click',function(e){
   else if(a==='del'){m=getMonth(UI.cur);var dit=null;m.items.forEach(function(i){if(i.id===el.dataset.id)dit=i});m.items=m.items.filter(function(i){return i.id!==el.dataset.id});if(dit&&dit.sid){m.del=m.del||[];if(m.del.indexOf(dit.sid)<0)m.del.push(dit.sid);removeForward(UI.cur,dit.sid)}change()}
   else if(a==='addcard'){openCard()}
   else if(a==='welinc'){openIncome()}
+  else if(a==='leavegrp'){openLeave()}
   else if(a==='welmode'){openMode(false)}
   else if(a==='mdsel'){MODEST.n=parseInt(el.dataset.n,10)||1;openMode(true)}
   else if(a==='weldone'){S.st=2;change()}
@@ -1403,6 +1415,10 @@ document.addEventListener('submit',function(e){
   if(e.target.id==='authForm'){e.preventDefault();doAuth(e.target);return}
   if(e.target.id==='goalForm'){e.preventDefault();saveGoal(e.target);return}
   if(e.target.id==='depForm'){e.preventDefault();saveDep(e.target);return}
+  if(e.target.id==='leaveForm'){e.preventDefault();var lb=e.target.querySelector('button[type=submit]');lb.disabled=true;
+    SB.rpc('sair_do_grupo').then(function(r){if(r.error)throw r.error;
+      var u=authedUid;closeModal();teardown();try{if(u)localStorage.removeItem(LS_KEY+':'+u)}catch(x){}afterAuth()
+    }).catch(function(err){lb.disabled=false;openLeave(/PGRST202|could not find|sair_do_grupo/i.test((err&&err.message)||'')?'A função de sair ainda não foi ativada no banco. Veja o LEIA-ME.':tr(err))});return}
   if(e.target.id==='incForm'){e.preventDefault();PS().forEach(function(k){var f=document.getElementById('in'+k);if(f)setInc(k,Math.max(0,parseNum(f.value)))});closeModal();change();return}
   if(e.target.id==='modeForm'){e.preventDefault();var nn=MODEST.n;S.np=nn;S.names=S.names||{};PK.slice(0,nn).forEach(function(k){var f=document.getElementById('mn'+k),v=f?f.value.trim():'';if(v)S.names[k]=v});S.st=S.st||1;closeModal();change();return}
   if(e.target.id==='cardForm'){e.preventDefault();var cid='c'+uid().slice(-6),cv=parseInt(document.getElementById('cdV').value,10);S.cards.push({id:cid,name:document.getElementById('cdN').value.trim()||'Novo cartão',color:CARDCOL[S.cards.length%CARDCOL.length],venc:(cv>=1&&cv<=31)?cv:null});UI.sel=cid;closeModal();change();return}
