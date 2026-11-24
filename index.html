@@ -831,7 +831,7 @@ function shell(title,sub,body){
 function eyeBtn(){return '<button type="button" class="pweye" data-act="showpw" aria-label="Mostrar senha" aria-pressed="false">'+ic('eye')+'</button>'}
 function fEmail(){return '<label class="field">E-mail<span class="ibox">'+ic('mail')+'<input id="aEmail" type="email" autocomplete="username" inputmode="email" placeholder="seu@email.com" required value="'+esc(AUTH.email)+'"></span></label>'}
 function fPass(label,auto,ph){return '<label class="field">'+label+'<span class="ibox pwbox">'+ic('lock')+'<input id="aPass" type="password" autocomplete="'+auto+'" placeholder="'+(ph||'Sua senha')+'" '+(auto==='new-password'?'minlength="8" ':'')+'required>'+eyeBtn()+'</span></label>'}
-function fCode(){return '<label class="field">Código de 6 dígitos<span class="ibox">'+ic('shield')+'<input id="aCodeNum" class="codein" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="8" placeholder="000000" required></span></label>'}
+function fCode(){return '<label class="field">Código recebido por e-mail<span class="ibox">'+ic('shield')+'<input id="aCodeNum" class="codein" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="8" placeholder="Digite o código" required></span></label>'}
 function resendLink(kind){return '<button type="button" class="lnk" id="resendBtn" data-act="resend" data-k="'+kind+'">Reenviar código</button>'}
 var TICK=null;
 function resendTick(){
@@ -847,9 +847,9 @@ function renderAuth(){
   if(m==='loading')h=shell('Carregando…','Um instante.','');
   else if(m==='login')h=shell('Entrar','','<form id="authForm" data-m="login" class="aform">'+fEmail()+fPass('Senha','current-password')+'<button class="btn full" type="submit">Entrar</button></form><div class="alinks"><button class="lnk" data-act="amode" data-m="signup">Criar conta</button><button class="lnk" data-act="amode" data-m="forgot">Esqueci a senha</button></div>');
   else if(m==='signup')h=shell('Criar conta','Cada pessoa tem a sua conta. Vamos enviar um código para o seu e-mail para confirmar que é você.','<form id="authForm" data-m="signup" class="aform">'+fEmail()+fPass('Senha (mínimo 8 caracteres)','new-password','Crie uma senha')+'<button class="btn full" type="submit">Criar conta</button></form><div class="alinks"><button class="lnk" data-act="amode" data-m="login">Já tenho conta</button></div>');
-  else if(m==='verify')h=shell('Confirme seu e-mail','Enviamos um código de 6 dígitos para <b>'+esc(AUTH.email)+'</b>. Digite aqui para ativar a sua conta.','<form id="authForm" data-m="verify" class="aform">'+fCode()+'<button class="btn full" type="submit">Confirmar e-mail</button></form><div class="alinks">'+resendLink('signup')+'<button class="lnk" data-act="amode" data-m="signup">Trocar e-mail</button></div>');
+  else if(m==='verify')h=shell('Confirme seu e-mail','Enviamos um código para <b>'+esc(AUTH.email)+'</b>. Digite aqui para ativar a sua conta.','<form id="authForm" data-m="verify" class="aform">'+fCode()+'<button class="btn full" type="submit">Confirmar e-mail</button></form><div class="alinks">'+resendLink('signup')+'<button class="lnk" data-act="amode" data-m="signup">Trocar e-mail</button></div>');
   else if(m==='forgot')h=shell('Recuperar senha','Digite o e-mail da sua conta. Vamos enviar um código para você criar uma senha nova.','<form id="authForm" data-m="forgot" class="aform">'+fEmail()+'<button class="btn full" type="submit">Enviar código</button></form><div class="alinks"><button class="lnk" data-act="amode" data-m="login">Voltar</button></div>');
-  else if(m==='resetcode')h=shell('Nova senha','Se existir uma conta com <b>'+esc(AUTH.email)+'</b>, enviamos um código de 6 dígitos. Digite o código e escolha a senha nova.','<form id="authForm" data-m="resetcode" class="aform">'+fCode()+fPass('Nova senha (mínimo 8 caracteres)','new-password','Crie uma senha nova')+'<button class="btn full" type="submit">Trocar senha</button></form><div class="alinks">'+resendLink('recovery')+'<button class="lnk" data-act="amode" data-m="login">Voltar</button></div>');
+  else if(m==='resetcode')h=shell('Nova senha','Se existir uma conta com <b>'+esc(AUTH.email)+'</b>, enviamos um código. Digite o código e escolha a senha nova.','<form id="authForm" data-m="resetcode" class="aform">'+fCode()+fPass('Nova senha (mínimo 8 caracteres)','new-password','Crie uma senha nova')+'<button class="btn full" type="submit">Trocar senha</button></form><div class="alinks">'+resendLink('recovery')+'<button class="lnk" data-act="amode" data-m="login">Voltar</button></div>');
   else if(m==='recover')h=shell('Nova senha','Escolha uma senha nova para a sua conta.','<form id="authForm" data-m="recover" class="aform">'+fPass('Nova senha (mínimo 8 caracteres)','new-password','Crie uma senha nova')+'<button class="btn full" type="submit">Salvar senha</button></form>');
   else if(m==='setup')h=shell('Seu grupo','Falta só escolher: criar um grupo novo ou entrar em um que já existe.','<div class="opt"><b>Sou o primeiro a entrar</b><span>Crio o grupo e gero um código para convidar quem eu quiser.</span><button class="btn" data-act="mkcasal">Criar meu grupo</button></div><form id="authForm" data-m="join" class="opt"><b>Já tenho um código</b><span>Digite o código que você recebeu.</span><input id="aCode" class="cell" style="border:1px solid var(--line);background:var(--surface)" placeholder="XXXXX-XXXXX" autocomplete="off" autocapitalize="characters" value="'+esc(AUTH.code)+'" required><button class="btn ghost" type="submit">Entrar no grupo</button></form><button class="lnk" data-act="logout">Sair da conta</button>');
   else if(m==='created')h=shell('Grupo criado','Envie este código para quem vai entrar no grupo. A pessoa cria a conta, escolhe “Já tenho um código” e digita o código. Você também encontra o código depois em Ajustes.','<div class="codebox" id="codeShow">'+esc(fmtCode(CASAL&&CASAL.codigo))+'</div><button class="btn ghost full" data-act="copycode" data-code="'+esc(fmtCode(CASAL&&CASAL.codigo))+'">Copiar código</button><button class="btn full" data-act="continue">Continuar</button>');
@@ -914,7 +914,7 @@ function doAuth(form){
       if(!r.data||!r.data.session){AUTH.resendAt=Date.now()+60000;authView('verify')}
     },fail)
   }else if(m==='verify'){
-    if(num.length<6){authView('verify','Digite o código de 6 dígitos que chegou no e-mail.');return}
+    if(num.length<6){authView('verify','Digite o código que chegou no e-mail.');return}
     verifyCode(AUTH.email,num,['email','signup']).then(function(r){if(r.error)return fail(r.error);btnBusy(form,false)},fail)
   }else if(m==='forgot'){
     SB.auth.resetPasswordForEmail(email).then(function(r){
@@ -922,7 +922,7 @@ function doAuth(form){
       AUTH.resendAt=Date.now()+60000;authView('resetcode')
     },fail)
   }else if(m==='resetcode'){
-    if(num.length<6){authView('resetcode','Digite o código de 6 dígitos que chegou no e-mail.');return}
+    if(num.length<6){authView('resetcode','Digite o código que chegou no e-mail.');return}
     if(pass.length<8){authView('resetcode','A nova senha precisa ter pelo menos 8 caracteres.');return}
     recovering=true;
     verifyCode(AUTH.email,num,['recovery']).then(function(r){
