@@ -811,7 +811,7 @@ function openMode(keep){
   var h='<form class="modal" id="modeForm" role="dialog" aria-modal="true" aria-label="Quem divide as contas"><h3>Quem divide as contas?</h3>'+
     '<div class="seg" role="group" aria-label="Modo de uso" style="margin:6px 0 12px">'+opt(1,'Solo',n===1)+opt(2,'Duo',n===2)+opt(3,'Grupo',n>=3)+'</div>';
   if(n>=3)h+='<div class="seg" role="group" aria-label="Quantas pessoas no grupo" style="margin-bottom:12px">'+opt(3,'3 pessoas',n===3)+opt(4,'4 pessoas',n===4)+'</div>';
-  h+='<div class="frow">'+PK.slice(0,n).map(function(k,i){var v=MODEST.names[k]!=null?MODEST.names[k]:((S.names&&S.names[k])||'');return '<label class="field">Nome da pessoa '+(i+1)+'<input id="mn'+k+'" value="'+esc(v)+'" placeholder="'+esc(PDEF[k])+'" maxlength="20"></label>'}).join('')+'</div>';
+  h+='<div class="frow">'+PK.slice(0,n).map(function(k,i){var v=MODEST.names[k]!=null?MODEST.names[k]:((S.names&&S.names[k])||'');return '<label class="field">'+(n===1?'Seu nome':'Nome da pessoa '+(i+1))+'<input id="mn'+k+'" value="'+esc(v)+'" placeholder="'+esc(PDEF[k])+'" maxlength="20"></label>'}).join('')+'</div>';
   if(n>1&&remote)h+='<div class="hint" style="margin-top:10px">O código para convidar as outras pessoas fica em <b>Ajustes</b>.</div>';
   h+='<div class="acts"><button type="button" class="btn ghost" data-act="close">Cancelar</button><button type="submit" class="btn">OK</button></div></form>';
   md.innerHTML=h;md.hidden=false;fitModal()
@@ -1031,10 +1031,10 @@ function progBar(c,p){
     '<div class="kv"><span>'+(done?'<b class="good">Tudo pago</b>':(g>0?'Falta '+(100-paid)+'%':'—'))+'</span><span>'+(done?money(g)+' pagos':(g>0?'<b class="num">'+money(pend)+'</b> de '+money(g):''))+'</span></div></div>'
 }
 function modeCard(c){
-  var sub='Cada barra chega a 100% quando as contas da pessoa estiverem pagas';
+  var sub=NP()===1?'A barra chega a 100% quando todas as suas contas estiverem pagas':'Cada barra chega a 100% quando as contas da pessoa estiverem pagas';
   var body='<div class="progs">'+PS().map(function(p){return progBar(c,p)}).join('')+'</div>';
-  if(isMob())return '<section'+secAttrs('g:prog','card c5 o6')+'><div class="hd">'+colBtn('g:prog','<div><span class="ttl">Progresso de pagamento</span><div class="sub">'+sub+'</div></div>')+'</div><div class="cbody">'+body+'</div></section>';
-  return '<section class="card c5 o6"><div class="hd"><div><h2 class="ttl">Progresso de pagamento</h2><div class="sub">'+sub+'</div></div></div>'+body+'</section>'
+  if(isMob())return '<section'+secAttrs('g:prog','card c5 o6')+'><div class="hd">'+colBtn('g:prog','<div><span class="ttl">'+(NP()===1?'Quanto já paguei':'Quanto já pagamos')+'</span><div class="sub">'+sub+'</div></div>')+'</div><div class="cbody">'+body+'</div></section>';
+  return '<section class="card c5 o6"><div class="hd"><div><h2 class="ttl">'+(NP()===1?'Quanto já paguei':'Quanto já pagamos')+'</h2><div class="sub">'+sub+'</div></div></div>'+body+'</section>'
 }
 
 /* ---------- metas ---------- */
@@ -1188,14 +1188,11 @@ function vGeral(){
      '<div class="stackwrap"><div class="stack" role="img" aria-label="Distribuição dos gastos em relação à renda">'+stack+'</div>'+mark+'</div>'+
      '<div class="legend">'+legend+'</div></section>'+
    '<section class="card c8 o2"><div class="hd"><div><h2 class="ttl">Próximos meses</h2><div class="sub">Toque em um mês para abri-lo. Entram contas fixas e parcelas que continuam.</div></div></div>'+projHtml+'</section>'+
-   '<section'+secAttrs('g:who','card c12 o4')+'><div class="hd">'+colBtn('g:who','<div><span class="ttl">Quem gastou quanto</span><div class="sub">Toque em uma conta ao lado para marcar como paga</div></div><span class="cs">'+money(c.g)+'</span>')+'</div>'+
+   '<section'+secAttrs('g:who','card c12 o4')+'><div class="hd">'+colBtn('g:who','<div><span class="ttl">'+(NP()===1?'Quanto gastei':'Quanto gastamos')+'</span><div class="sub">'+(NP()===1?'Sua renda, seus gastos e o que sobra':'Renda, gastos e o que sobra de cada um')+'</div></div><span class="cs">'+money(c.g)+'</span>')+'</div>'+
      '<div class="cbody"><div class="ppl">'+PS().map(function(p){return personPanel(c,p)}).join('')+'</div></div></section>'+
       (isMob()?'<section'+secAttrs('g:cards','card c12 o5')+'><div class="hd">'+colBtn('g:cards','<div><span class="ttl">Cartões</span><div class="sub">Toque em um cartão para ver os lançamentos da fatura</div></div>')+'</div><div class="cbody"><div style="margin:0 0 10px"><button class="btn ghost sm" data-act="nav" data-v="cartoes">Ver todos</button></div>'+cardsHtml+'</div></section>':
    '<section class="card c12 o5"><div class="hd"><div><h2 class="ttl">Cartões</h2><div class="sub">Toque em um cartão para ver os lançamentos da fatura</div></div><button class="btn ghost sm" data-act="nav" data-v="cartoes">Ver todos</button></div>'+cardsHtml+'</section>')+
    '</div><div class="rightcol">'+
-   '<section'+secAttrs('g:bills','card c4 o3')+'>'+'<div class="hd">'+colBtn('g:bills','<div><span class="ttl">Contas a pagar</span><div class="sub">'+(pendN?pendN+(pendN>1?' contas':' conta')+' com pendência':'Tudo pago')+'</div></div><span class="cs">'+money(pendTotal)+'</span>')+'</div>'+
-     '<div class="cbody"><div class="bigline" style="margin-bottom:12px">'+big(pendTotal,'md')+'</div>'+
-     '<div class="days">'+tabs+'</div><div class="bills">'+list+'</div></div></section>'+
    modeCard(c,splitHtml,acerto)+
    caixaCard(c)+
    '</div></div>'
@@ -1271,7 +1268,7 @@ function modeSeg(){
 }
 function personRow(k,i){
   var c=(S.pc&&S.pc[k])||'var(--'+k+')';
-  return '<div class="field">Pessoa '+(i+1)+'<span class="namebox"><input value="'+esc(pname(k))+'" data-f="name" data-p="'+k+'" aria-label="Nome da pessoa '+(i+1)+'"><button type="button" class="dotbtn" style="background:'+c+'" data-act="palopen" data-p="'+k+'" aria-expanded="'+(UI.pal===k)+'" aria-label="Escolher a cor de '+esc(pname(k))+'"></button></span>'+(UI.pal===k?palette(k):'')+'</div>'
+  return '<div class="field">'+(NP()===1?'Seu nome':'Pessoa '+(i+1))+'<span class="namebox"><input value="'+esc(pname(k))+'" data-f="name" data-p="'+k+'" aria-label="Nome da pessoa '+(i+1)+'"><button type="button" class="dotbtn" style="background:'+c+'" data-act="palopen" data-p="'+k+'" aria-expanded="'+(UI.pal===k)+'" aria-label="Escolher a cor de '+esc(pname(k))+'"></button></span>'+(UI.pal===k?palette(k):'')+'</div>'
 }
 function vAjustes(){
   var cards=S.cards.map(function(c){return '<tr><td><input class="cell" value="'+esc(c.name)+'" data-f="cname" data-id="'+esc(c.id)+'" aria-label="Nome do cartão"></td>'+
